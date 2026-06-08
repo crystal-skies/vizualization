@@ -11,21 +11,17 @@
 <body>
   <div id="app">
 
-    <!-- VENTANA EMERGENTE DE SAIDIT (Q2) -->
+  <!-- VENTANA POP-UP ARRASTRABLE -->
     <div id="saidit-modal" class="hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>🌐 SaidIT Campaign Ledger</h3>
-          <button id="close-modal-btn">✖</button>
-        </div>
-        <div class="modal-body">
-          <p style="font-size: 13px; color: #555; margin-bottom: 10px;">
-            <strong>Análisis (Q2):</strong> Registro de exfiltración de los 3 gusanos hacia el foro central. La automatización se evidencia por la repetición sintáctica.
-          </p>
-          <div id="saidit-table-container"></div>
-        </div>
+      <div id="modal-drag-handle" class="modal-header">
+        <span class="modal-title">Registro de Intercepciones</span>
+        <button id="close-modal-btn" style="background:none; border:none; cursor:pointer; color:#666; font-weight:bold;">✖</button>
+      </div>
+      <div class="modal-body">
+        <div id="saidit-table-container"></div>
       </div>
     </div>
+
     <!-- BARRA SUPERIOR: Filtros de Campaña -->
     <div id="top-bar">
       <span class="label">CAMPAÑA:</span>

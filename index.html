@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análisis de Propagación</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Cargamos D3 v7 desde el CDN -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- VENTANA EMERGENTE DE SAIDIT (Q2) -->
+    <div id="saidit-modal" class="hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🌐 SaidIT Campaign Ledger</h3>
+          <button id="close-modal-btn">✖</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 13px; color: #555; margin-bottom: 10px;">
+            <strong>Análisis (Q2):</strong> Registro de exfiltración de los 3 gusanos hacia el foro central. La automatización se evidencia por la repetición sintáctica.
+          </p>
+          <div id="saidit-table-container"></div>
+        </div>
+      </div>
+    </div>
+    <!-- BARRA SUPERIOR: Filtros de Campaña -->
+    <div id="top-bar">
+      <span class="label">CAMPAÑA:</span>
+      <div id="campaign-filters"></div>
+      <div id="clock-container">
+        <span id="clock-date">—</span> · <span id="clock-time">—</span>
+      </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="content">
+      <!-- Gráfico 1: Árbol Radial Principal -->
+      <div id="main-chart"></div>
+
+      <!-- Panel Lateral (Se abre al hacer clic en un nodo) -->
+      <div id="side-panel">
+        <div id="side-header">
+          <span id="side-title">Detalle de Propagación</span>
+          <button id="close-btn">Cerrar ✖</button>
+        </div>
+        <!-- Gráfico 2: Línea de tiempo topológica -->
+        <div id="side-chart"></div>
+      </div>
+    </div>
+
+    <!-- LÍNEA DE TIEMPO GLOBAL -->
+    <div id="timeline-container">
+      <div id="play-btn">▶ Play</div>
+      <div id="slider-wrapper">
+        <svg id="timeline-svg"></svg>
+      </div>
+      <div id="stats-label">Cargando...</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+
+</body>
+</html>

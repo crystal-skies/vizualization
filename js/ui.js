@@ -43,9 +43,7 @@ function setupUI() {
       const btn = document.getElementById("toggle-console-btn");
       if (!consoleDiv || !btn) return;
       if (consoleDiv.classList.contains("collapsed")) {
-        consoleDiv.classList.remove("collapsed");
-        btn.innerText = "Minimizar ▼";
-        openSaiditLedger(); // IMPORTANTE: Llama a la tabla
+        openSaiditConsole();
       } else {
         consoleDiv.classList.add("collapsed");
         btn.innerText = "Expandir ▲";
@@ -98,6 +96,22 @@ function initTimeline() {
 
 
 // --- LÓGICA DE LA CONSOLA INFERIOR (Q2) ---
+function openSaiditConsole() {
+  const consoleDiv = document.getElementById("bottom-console");
+  const btn = document.getElementById("toggle-console-btn");
+  if (!consoleDiv || !btn) return;
+  if (consoleDiv.classList.contains("collapsed")) {
+    consoleDiv.classList.remove("collapsed");
+    btn.innerText = "Minimizar ▼";
+  }
+  requestAnimationFrame(() => {
+    openSaiditLedger();
+    if (typeof updateAll === "function") {
+      updateAll();
+    }
+  });
+}
+
 function openSaiditLedger() {
   const saiditEvents = state.propEvents.filter(e => 
     e.ts <= state.currentTs && 

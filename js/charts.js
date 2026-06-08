@@ -95,17 +95,17 @@ function initMainChart() {
     .attr("transform", `translate(-${offsetLeft}, 0)`) 
     .style("cursor", "pointer")
     .on("click", () => {
-      // Ahora el mundito 🌐 controla la consola de abajo
-      const consoleDiv = document.getElementById("bottom-console");
-      const btn = document.getElementById("toggle-console-btn");
-      
-      if (consoleDiv.classList.contains("collapsed")) {
-        consoleDiv.classList.remove("collapsed");
-        btn.innerText = "Minimizar ▼";
-        openSaiditLedger(); // Dibuja la tabla
+      // Abre la consola de filtraciones SaidIT sin depender de la topología
+      if (typeof openSaiditConsole === "function") {
+        openSaiditConsole();
       } else {
-        consoleDiv.classList.add("collapsed");
-        btn.innerText = "Expandir ▲";
+        const consoleDiv = document.getElementById("bottom-console");
+        const btn = document.getElementById("toggle-console-btn");
+        if (consoleDiv && btn && consoleDiv.classList.contains("collapsed")) {
+          consoleDiv.classList.remove("collapsed");
+          btn.innerText = "Minimizar ▼";
+        }
+        openSaiditLedger();
       }
     });
 

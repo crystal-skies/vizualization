@@ -11,17 +11,6 @@
 <body>
   <div id="app">
 
-  <!-- VENTANA POP-UP ARRASTRABLE -->
-    <div id="saidit-modal" class="hidden">
-      <div id="modal-drag-handle" class="modal-header">
-        <span class="modal-title">Registro de Intercepciones</span>
-        <button id="close-modal-btn" style="background:none; border:none; cursor:pointer; color:#666; font-weight:bold;">✖</button>
-      </div>
-      <div class="modal-body">
-        <div id="saidit-table-container"></div>
-      </div>
-    </div>
-
     <!-- BARRA SUPERIOR: Filtros de Campaña -->
     <div id="top-bar">
       <span class="label">CAMPAÑA:</span>
@@ -33,18 +22,35 @@
 
     <!-- CONTENIDO PRINCIPAL -->
     <div id="content">
-      <!-- Gráfico 1: Árbol Radial Principal -->
-      <div id="main-chart"></div>
+      
+      <!-- COLUMNA IZQUIERDA (Se ajusta dinámicamente) -->
+      <div id="left-column">
+        
+        <!-- Gráfico 1: Árbol Radial -->
+        <div id="main-chart"></div>
 
-      <!-- Panel Lateral (Se abre al hacer clic en un nodo) -->
+        <!-- Consola Inferior: SaidIT -->
+        <div id="bottom-console" class="collapsed">
+          <div id="console-header">
+            <span class="console-title">🌐 SaidIT Filtraciones</span>
+            <button id="toggle-console-btn">Expandir ▲</button>
+          </div>
+          <div id="console-body">
+            <div id="saidit-table-container"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL LATERAL DERECHO (Topología) -->
       <div id="side-panel">
         <div id="side-header">
           <span id="side-title">Detalle de Propagación</span>
           <button id="close-btn">Cerrar ✖</button>
         </div>
-        <!-- Gráfico 2: Línea de tiempo topológica -->
         <div id="side-chart"></div>
       </div>
+
     </div>
 
     <!-- LÍNEA DE TIEMPO GLOBAL -->
@@ -57,7 +63,10 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
 
 </body>
 </html>

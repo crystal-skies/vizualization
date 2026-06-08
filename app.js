@@ -160,44 +160,53 @@ function initMainChart() {
     mainLabelMap[pid] = { txt, depth: d.depth };
   });
 
-  // --- NODO FLOTANTE SAIDIT (Top-Left, Suelto y con Glow) ---
+// --- NODO FLOTANTE SAIDIT (Alineado y del mismo tamaño que Root) ---
   const defs = svg.append("defs");
   
-  // Creamos el filtro de degradado para la "luz"
+  // Creamos el filtro de degradado para la "luz" (ajustado en tamaño)
   const glowGrad = defs.append("radialGradient").attr("id", "saidit-glow-grad");
   glowGrad.append("stop").attr("offset", "10%").attr("class", "glow-center").attr("stop-color", "#e63946").attr("stop-opacity", 0.9);
   glowGrad.append("stop").attr("offset", "100%").attr("class", "glow-edge").attr("stop-color", "#e63946").attr("stop-opacity", 0);
 
-  // Posicionamos el Hub arriba a la izquierda (Ajusta el 120, 100 si lo quieres mover más)
-  const saiditHub = svg.append("g")
-    .attr("id", "saidit-hub")
-    .attr("transform", `translate(120, 100)`)
-    .style("cursor", "pointer")
-    .on("click", openSaiditLedger);
+  // Distancia hacia la izquierda (Radio del árbol + un margen para los nombres)
+  const offsetLeft = radius + 150; 
 
-  // El círculo de luz (Oculto por defecto, sin bordes duros)
+  const saiditHub = mainG.append("g")
+    .attr("id", "saidit-hub")
+    .attr("transform", `translate(-${offsetLeft}, 0)`) 
+    .style("cursor", "pointer")
+    .on("click", () => {
+      // Magia del interruptor: Si está visible, lo ocultamos. Si está oculto, lo abrimos.
+      const modal = document.getElementById("saidit-modal");
+      if (!modal.classList.contains("hidden")) {
+        modal.classList.add("hidden");
+      } else {
+        openSaiditLedger(); 
+      }
+    });
+
+  // El círculo de luz escalado para un nodo más pequeño
   saiditHub.append("circle")
     .attr("class", "saidit-glow")
-    .attr("r", 40)
+    .attr("r", 25) // Radio de luz reducido para que coincida
     .attr("fill", "url(#saidit-glow-grad)")
     .style("opacity", 0)
-    .style("pointer-events", "none"); // Para que no bloquee los clics
+    .style("pointer-events", "none");
 
-  // El Emoji suelto
+  // El Emoji del globo (Escalado para que sea igual al punto azul de Tenant Thread)
   saiditHub.append("text")
     .text("🌐")
     .attr("text-anchor", "middle")
     .attr("dy", "0.35em")
-    .style("font-size", "36px"); // Emoji más grande
+    .style("font-size", "18px"); // 18px coincide con el diámetro visual del nodo central
 
-  // Etiqueta sutil abajo
+  // Etiqueta sutil abajo (Mismo tamaño de letra que el centro)
   saiditHub.append("text")
     .text("system:saidit")
-    .attr("y", 35)
+    .attr("y", 22) // Lo subimos un poco para pegarlo al globo
     .attr("text-anchor", "middle")
-    .style("font-size", "11px")
-    .style("font-weight", "bold")
-    .attr("fill", "#666");
+    .style("font-size", "13px") // Mismo font-size que Tenant Thread
+    .attr("fill", "#222"); // Color un poco más oscuro para empatar con los demás
 }
 
 function updateMainChart(visibleEvents) {
@@ -254,32 +263,30 @@ function updateMainChart(visibleEvents) {
 
     // Si retrocedemos el tiempo en el slider, reseteamos el detector
     if (state.lastSaiditTs && state.currentTs < state.lastSaiditTs) {
-      state.lastSaiditId = null;
+      state.lastSaiditId = 0;
     }
 
-    // Si encontramos un post NUEVO que no ha brillado aún
-    if (state.lastSaiditId !== latest.id) {
-      state.lastSaiditId = latest.id;
+    // CORRECCIÓN: Usamos la cantidad total de eventos para saber si hay uno NUEVO
+    if (state.lastSaiditCount !== recentSaidit.length) {
+      state.lastSaiditCount = recentSaidit.length;
       state.lastSaiditTs = latest.ts;
       
       const campColor = COLORS[latest.campaign]?.base || "#e63946";
       
-      // Actualizamos el color de la luz al color del gusano
       d3.selectAll(".glow-center").attr("stop-color", campColor);
       d3.selectAll(".glow-edge").attr("stop-color", campColor);
 
-      // Prender (rápido) y Apagar (suavemente)
       d3.select(".saidit-glow")
-        .interrupt() // Corta animaciones anteriores si caen posts muy rápido
+        .interrupt()
         .style("opacity", 0)
-        .transition().duration(200).style("opacity", 1)   // 💡 Se prende!
-        .transition().duration(1800).style("opacity", 0); // 🌑 Se apaga lentamente
+        .transition().duration(200).style("opacity", 1)   
+        .transition().duration(1800).style("opacity", 0); 
     }
   } else {
-    // Si no hay posts de saidit visibles, reseteamos estado
-    state.lastSaiditId = null;
+    state.lastSaiditCount = 0;
     state.lastSaiditTs = 0;
   }
+
 }
 
 // --- GRÁFICO 2: DETALLE LATERAL (DAG LÍNEA DE TIEMPO) ---
@@ -599,57 +606,135 @@ function updateAll() {
     document.getElementById("side-title").innerText = state.selectedNode ? `Topología: ${state.selectedNode}` : `Detalle de Campaña`;
     updateSideChart(visibleEvents);
   }
+  // pop up 
+  const modal = document.getElementById("saidit-modal");
+  if (modal && !modal.classList.contains("hidden")) {
+    openSaiditLedger(); // Refresca la tabla automáticamente con los nuevos datos
+  }
 }
 
-// --- LÓGICA DE LA VENTANA SAIDIT (Q2) ---
+// --- LÓGICA DE LA VENTANA POP-UP SAIDIT (Q2) ---
 function openSaiditLedger() {
-  // 1. Filtrar todos los eventos que llegaron a saidit hasta el momento actual
   const saiditEvents = state.propEvents.filter(e => 
     e.ts <= state.currentTs && 
     (e.target === "system:saidit" || e.target?.includes("saidit"))
   );
 
   const container = d3.select("#saidit-table-container");
-  container.html(""); // Limpiar
+  container.html(""); 
 
   if (saiditEvents.length === 0) {
-    container.html("<p>No hay publicaciones interceptadas aún en la línea de tiempo actual.</p>");
+    container.html("<div class='empty-msg'>No se han interceptado datos en este momento de la línea de tiempo.</div>");
   } else {
-    // 2. Construir la Tabla Comparativa
     let html = `<table class="ledger-table">
                   <tr>
                     <th>Fecha</th>
-                    <th>Campaña (Gusano)</th>
-                    <th>Origen (Infectado)</th>
+                    <th>Campaña</th>
+                    <th>Origen</th>
                     <th>Acción</th>
-                    <th>Contenido Interceptado</th>
+                    <th>Contenido</th>
                   </tr>`;
     
-    // Invertir para ver el más reciente arriba
     saiditEvents.reverse().forEach(e => {
-      const dateStr = new Date(e.ts * 1000).toLocaleString("es-ES");
+      const dateStr = new Date(e.ts * 1000).toLocaleString("es-ES", {month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"});
       const color = COLORS[e.campaign]?.base || "#444";
       const action = e.details?.task || e.short_name || "Post";
-      // El contenido que prueba el significado
-      const content = e.details?.content || e["details.content"] || e.details?.args?.path || "Mensaje Cifrado/Vacio";
+      const content = e.details?.content || e["details.content"] || e.details?.args?.path || "Vacio/Cifrado";
       
       html += `<tr>
-                <td style="color:#666;">${dateStr}</td>
-                <td><span class="camp-tag" style="background:${color}">${e.campaign || 'Desconocida'}</span></td>
-                <td style="font-weight:bold; color:#1a5276;">${e.source}</td>
+                <td style="color:#888; white-space:nowrap;">${dateStr}</td>
+                <td><span class="camp-tag" style="background:${color}">${e.campaign}</span></td>
+                <td style="font-weight:600;">${e.source}</td>
                 <td>${action}</td>
-                <td style="font-family:monospace; background:#f9f9f9; padding:5px; border:1px dashed #ccc;">${content}</td>
+                <td><div class="content-box">${content}</div></td>
               </tr>`;
     });
     html += `</table>`;
     container.html(html);
   }
 
-  // 3. Mostrar el Modal
   d3.select("#saidit-modal").classed("hidden", false);
 }
 
 // Cerrar el Modal
 document.getElementById("close-modal-btn").addEventListener("click", () => {
   d3.select("#saidit-modal").classed("hidden", true);
+});
+
+// --- LÓGICA DE ARRASTRE Y ANCLAJE (A PRUEBA DE BALAS) ---
+const popup = document.getElementById("saidit-modal");
+const dragHandle = document.getElementById("modal-drag-handle");
+
+let isDragging = false, startX, startY, startLeft, startTop;
+let isSnapped = false;
+
+// 1. ESCUCHAMOS EL CLIC SOLO EN EL TÍTULO
+dragHandle.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  
+  if (isSnapped) {
+    isSnapped = false;
+    popup.style.width = "650px";
+    popup.style.height = "auto";
+    
+    startLeft = e.clientX - 325; 
+    startTop = e.clientY - 20;
+  } else {
+    // Obtenemos la posición en píxeles de la ventana
+    startLeft = popup.offsetLeft; 
+    startTop = popup.offsetTop;
+  }
+  
+  startX = e.clientX;
+  startY = e.clientY;
+  
+  // Forzamos al navegador a soltar cualquier bloqueo de texto
+  e.preventDefault(); 
+});
+
+// 2. MOVEMOS LA VENTANA
+document.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+  e.preventDefault();
+  
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  
+  // Importante: usamos !important desde JS para sobreescribir el CSS
+  popup.style.setProperty("left", (startLeft + dx) + "px", "important");
+  popup.style.setProperty("top", (startTop + dy) + "px", "important");
+});
+
+// 3. SOLTAMOS Y HACEMOS EL EFECTO SNAP (WINDOWS)
+document.addEventListener("mouseup", (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+  
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+
+  // Si lo sueltas pegado a la DERECHA
+  if (e.clientX > screenW - 50) {
+    isSnapped = true;
+    popup.style.setProperty("transition", "all 0.2s ease-out"); // Animación suave
+    popup.style.setProperty("left", (screenW - 520) + "px", "important");
+    popup.style.setProperty("top", "60px", "important");
+    popup.style.setProperty("width", "500px", "important");
+    popup.style.setProperty("height", (screenH - 150) + "px", "important");
+    
+    // Quitamos la transición después para que no haya lag al volverlo a arrastrar
+    setTimeout(() => popup.style.setProperty("transition", "none"), 200);
+  }
+  
+  // Si lo sueltas pegado a la IZQUIERDA
+  else if (e.clientX < 50) {
+    isSnapped = true;
+    popup.style.setProperty("transition", "all 0.2s ease-out");
+    popup.style.setProperty("left", "20px", "important");
+    popup.style.setProperty("top", "60px", "important");
+    popup.style.setProperty("width", "500px", "important");
+    popup.style.setProperty("height", (screenH - 150) + "px", "important");
+    
+    setTimeout(() => popup.style.setProperty("transition", "none"), 200);
+  }
 });

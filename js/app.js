@@ -1,4 +1,4 @@
-﻿// --- INICIALIZACIÓN ---
+// --- INICIALIZACIÓN ---
 Promise.all([
   d3.json("org_chart.json"),
   d3.json("propagation_events.json")

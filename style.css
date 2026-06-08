@@ -11,7 +11,7 @@ body, html { height: 100vh; overflow: hidden; background: #fff; }
 #clock-container { margin-left: auto; font-size: 13px; font-weight: bold; color: #333; }
 #clock-time { font-size: 11px; color: #888; font-weight: normal; }
 
-/* Área Central */
+/* �rea Central */
 #content { display: flex; flex: 1; position: relative; overflow: hidden; }
 #main-chart { flex: 1; background: #fff; position: relative; }
 
@@ -31,33 +31,70 @@ body, html { height: 100vh; overflow: hidden; background: #fff; }
 #close-btn:hover { color: #e63946; }
 #side-chart { flex: 1; position: relative; }
 
-/* Línea de tiempo inferior */
+/* L�nea de tiempo inferior */
 #timeline-container { height: 70px; background: #fff; border-top: 1px solid #dde; display: flex; align-items: center; padding: 0 20px; gap: 20px; }
 #play-btn { background: #2176ae; color: #fff; padding: 8px 16px; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; text-align: center; width: 90px; }
 #slider-wrapper { flex: 1; height: 40px; position: relative; }
 #timeline-svg { width: 100%; height: 100%; display: block; }
 #stats-label { font-size: 12px; font-weight: bold; color: #444; width: 250px; text-align: right; }
 
-/* Q2 */
+/* Q2 - POP-UP FLOTANTE */
 #saidit-modal {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5); z-index: 9999;
-  display: flex; justify-content: center; align-items: center;
+  position: absolute !important; 
+  top: 100px !important; 
+  left: 150px !important; 
+  width: 650px !important; 
+  height: auto !important;
+  max-height: 400px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px; 
+  box-shadow: 0 12px 35px rgba(0,0,0,0.2); 
+  display: flex !important;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
 }
-#saidit-modal.hidden { display: none; }
-.modal-content {
-  background: white; width: 80%; max-width: 800px; max-height: 80%;
-  border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  display: flex; flex-direction: column; overflow: hidden;
+#saidit-modal.hidden { display: none !important; }
+
+#modal-drag-handle {
+  padding: 15px 20px 10px 20px;
+  background: transparent;
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.modal-header {
-  background: #1a5276; color: white; padding: 15px 20px;
-  display: flex; justify-content: space-between; align-items: center;
+#modal-drag-handle:active { cursor: grabbing; }
+
+.modal-title { font-size: 14px; font-weight: bold; color: #333; }
+
+#close-modal-btn { 
+  background: none !important; 
+  border: none !important; 
+  color: #666 !important; 
+  cursor: pointer !important; 
+  font-size: 16px !important;
+  font-weight: bold !important;
+  padding: 0 !important;
 }
-.modal-header h3 { margin: 0; font-size: 16px; }
-#close-modal-btn { background: none; border: none; color: white; cursor: pointer; font-size: 16px; }
-.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+.modal-body { padding: 0 20px 20px 20px; overflow-y: auto; flex: 1; }
+
 .ledger-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.ledger-table th { background: #f0f4f8; padding: 10px; text-align: left; border-bottom: 2px solid #dde; }
-.ledger-table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+.ledger-table th { 
+  background: #fff; color: #888; padding: 12px 10px; 
+  text-align: left; border-bottom: 2px solid #eee; 
+  font-weight: 600; font-size: 11px; text-transform: uppercase; 
+}
+.ledger-table td { padding: 12px 10px; border-bottom: 1px solid #f9f9f9; vertical-align: middle; color: #444; }
+.ledger-table tr:hover td { background: #fbfdff; }
+
 .camp-tag { padding: 3px 8px; border-radius: 12px; color: white; font-weight: bold; font-size: 10px; }
+
+.content-box { 
+  background: #f4f6f8; padding: 6px 8px; border-radius: 4px; 
+  font-family: monospace; color: #555; font-size: 11px;
+}
+.empty-msg { padding: 30px; text-align: center; color: #888; font-style: italic; }
